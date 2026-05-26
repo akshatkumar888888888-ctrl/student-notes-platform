@@ -17,15 +17,4 @@ export default async function handler(req: any, res: any) {
     if (error) return res.status(500).json({ error: error.message });
     return res.status(200).json(data);
   }
-
-  if (req.method === 'POST') {
-    const { title, description, class_id, stream_id, subject_id, file_name, file_url, file_size, uploaded_by } = req.body;
-    const { data, error } = await supabase.from('notes').insert({
-      title, description, class_id, stream_id, subject_id,
-      file_name, file_url, file_size,
-      uploaded_by: uploaded_by || 'Anonymous Student'
-    }).select().single();
-    if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json({ success: true, note: data });
-  }
 }
