@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka:wght@300;400;500;600;700&family=Lilita+One&family=JetBrains+Mono:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Fredoka", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Lilita One", sans-serif;
+  --font-action: "Bangers", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Custom Comic/Neo-Brutalist utility presets */
+.comic-border {
+  border: 3px solid #000000;
+}
+
+.comic-border-light {
+  border: 2px solid #000000;
+}
+
+/* Gen-Z Comic Shadows */
+.comic-shadow-sm {
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+.comic-shadow-md {
+  box-shadow: 4px 4px 0px 0px #000000;
+}
+
+.comic-shadow-lg {
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+
+.comic-shadow-purple {
+  box-shadow: 5px 5px 0px 0px #7C3AED;
+}
+
+.comic-shadow-orange {
+  box-shadow: 5px 5px 0px 0px #EA580C;
+}
+
+/* Comic action panel background dot grids */
+.comic-halftone {
+  background-color: #fef08a;
+  background-image: radial-gradient(#ca8a04 15%, transparent 16%),
+                    radial-gradient(#ca8a04 15%, transparent 16%);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 8px;
+}
+
+.comic-halftone-purple {
+  background-color: #faf5ff;
+  background-image: radial-gradient(#c084fc 10%, transparent 11%);
+  background-size: 14px 14px;
+}
+
+.comic-burst-bg {
+  background: radial-gradient(circle, #fef08a 20%, #facc15 80%);
+}
+
+/* Button lift and click state simulations */
+.comic-btn-yellow {
+  border: 3px solid #000000;
+  background-color: #facc15;
+  color: #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  transition: all 0.15s ease-in-out;
+}
+.comic-btn-yellow:hover {
+  background-color: #fef08a;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px #000000;
+}
+.comic-btn-yellow:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0px 0px #000000;
+}
+
+.comic-btn-purple {
+  border: 3px solid #000000;
+  background-color: #a855f7;
+  color: #ffffff;
+  box-shadow: 4px 4px 0px 0px #000000;
+  transition: all 0.15s ease-in-out;
+}
+.comic-btn-purple:hover {
+  background-color: #c084fc;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px #000000;
+}
+.comic-btn-purple:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0px 0px #000000;
+}
+
+/* Keep current overrides */
+.bg-indigo-650 {
+  background-color: #6d28d9;
+}

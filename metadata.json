@@ -1,0 +1,6 @@
+{
+  "name": "Student Notes Platform",
+  "description": "An interactive, easy-to-use platform for students to upload and find notes organized by Class, Stream, and Subject, with a Supabase backend guide.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
