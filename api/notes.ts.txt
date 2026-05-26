@@ -1,0 +1,31 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_ANON_KEY!
+);
+
+export default async function handler(req: any, res: any) {
+  if (req.method === 'GET') {
+    const { class_id, stream_id, subject_id } = req.query;
+    let query = supabase.from('notes').select('*');
+    if (class_id) query = query.eq('class_id', class_id);
+    if (stream_id) query = query.eq('stream_id', stream_id);
+    if (subject_id) query = query.eq('subject_id', subject_id);
+    query = query.order('created_at', { ascending: false });
+    const { data, error } = await query;
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json(data);
+  }
+
+  if (req.method === 'POST') {
+    const { title, description, class_id, stream_id, subject_id, file_name, file_url, file_size, uploaded_by } = req.body;
+    const { data, error } = await supabase.from('notes').insert({
+      title, description, class_id, stream_id, subject_id,
+      file_name, file_url, file_size,
+      uploaded_by: uploaded_by || 'Anonymous Student'
+    }).select().single();
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json({ success: true, note: data });
+  }
+}
