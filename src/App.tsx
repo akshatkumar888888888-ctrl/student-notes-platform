@@ -122,6 +122,24 @@ export default function App() {
     }
   };
 
+  // Increment view count when a note is previewed
+  const handleViewNote = async (note: Note) => {
+    setPreviewNote(note);
+    try {
+      const res = await fetch(`/api/notes/${note.id}`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        const result = await res.json();
+        if (result.note) {
+          setNotes((prev) => prev.map((n) => n.id === result.note.id ? result.note : n));
+        }
+      }
+    } catch (err) {
+      console.error("Error incrementing view count:", err);
+    }
+  };
+
   // Notes state
   const [notes, setNotes] = useState<Note[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -746,7 +764,7 @@ export default function App() {
                             <div className="flex items-center gap-2.5">
                               {note.rating !== undefined && (
                                 <div 
-                                  onClick={() => setPreviewNote(note)}
+                                  onClick={() => handleViewNote(note)}
                                   className="flex items-center gap-1 bg-amber-200 hover:bg-amber-300 text-black px-2 py-0.5 rounded-full text-[10px] font-black border-2 border-black cursor-pointer shadow-[1.5px_1.5px_0_0_#000] transition-all"
                                   title={`Average rating: ${Number(note.rating).toFixed(1)} stars. Click to read and submit rating.`}
                                 >
@@ -757,6 +775,12 @@ export default function App() {
                                   )}
                                 </div>
                               )}
+
+                              {/* View count badge */}
+                              <div className="flex items-center gap-1 bg-blue-200 text-black px-2 py-0.5 rounded-full text-[10px] font-black border-2 border-black shadow-[1.5px_1.5px_0_0_#000]">
+                                <Eye className="w-3 h-3 shrink-0" />
+                                <span>{(note as any).views || 0}</span>
+                              </div>
                               
                               <span className="text-[10px] text-black font-black uppercase font-mono flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
@@ -865,7 +889,7 @@ export default function App() {
 
                             {/* Preview Button */}
                             <button
-                              onClick={() => setPreviewNote(note)}
+                              onClick={() => handleViewNote(note)}
                               className="bg-yellow-400 hover:bg-yellow-300 text-black border-2 border-black w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all shadow-[2px_2px_0_0_#000] active:translate-y-0.5 cursor-pointer"
                               title="Preview Document"
                             >
