@@ -150,6 +150,48 @@ export default function App() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDeleteNoteId, setConfirmDeleteNoteId] = useState<string | null>(null);
 
+  // Admin panel state
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
+  const [showAdminLogin, setShowAdminLogin] = useState<boolean>(false);
+  const [adminCodeInput, setAdminCodeInput] = useState<string>("");
+  const [adminLoginError, setAdminLoginError] = useState<string>("");
+  const [adminDeletingId, setAdminDeletingId] = useState<string | null>(null);
+  const [adminConfirmId, setAdminConfirmId] = useState<string | null>(null);
+  const ADMIN_SECRET = "akshat88s";
+
+  const handleAdminLogin = () => {
+    if (adminCodeInput === ADMIN_SECRET) {
+      setIsAdminMode(true);
+      setShowAdminLogin(false);
+      setAdminCodeInput("");
+      setAdminLoginError("");
+    } else {
+      setAdminLoginError("Wrong secret code! Try again.");
+    }
+  };
+
+  const handleAdminDelete = async (noteId: string) => {
+    setAdminDeletingId(noteId);
+    try {
+      const res = await fetch(`/api/notes/${noteId}`, {
+        method: "DELETE",
+        headers: { "x-admin-secret": ADMIN_SECRET },
+      });
+      if (res.ok) {
+        setNotes((prev) => prev.filter((n) => n.id !== noteId));
+        if (previewNote?.id === noteId) setPreviewNote(null);
+        setAdminConfirmId(null);
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to delete note");
+      }
+    } catch (err) {
+      alert("Something went wrong while deleting.");
+    } finally {
+      setAdminDeletingId(null);
+    }
+  };
+
   // Supabase Backend configurations info
   const [backendConfig, setBackendConfig] = useState<{
     supabaseConfigured: boolean;
@@ -424,6 +466,14 @@ export default function App() {
 
           {/* Connected indicators & Profiles */}
           <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-center sm:justify-end">
+            {/* Hidden Admin Button */}
+            <button
+              onClick={() => isAdminMode ? setIsAdminMode(false) : setShowAdminLogin(true)}
+              className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-lg border-2 border-black shadow-[2px_2px_0_0_#000] transition-all cursor-pointer ${isAdminMode ? "bg-red-500 text-white animate-pulse" : "bg-black text-yellow-400"}`}
+              title="Admin Panel"
+            >
+              {isAdminMode ? "🔓 Admin ON" : "🔒"}
+            </button>
           </div>
         </div>
       </nav>
@@ -854,6 +904,34 @@ export default function App() {
                           </div>
 
                           <div className="flex items-center gap-1.5 shrink-0">
+                            {/* Admin Delete Button - visible only in admin mode */}
+                            {isAdminMode && (
+                              <div className="flex items-center gap-1 z-20">
+                                {adminConfirmId === note.id ? (
+                                  <>
+                                    <button
+                                      onClick={() => handleAdminDelete(note.id)}
+                                      disabled={adminDeletingId === note.id}
+                                      className="bg-red-600 hover:bg-red-700 text-white border-2 border-black px-2 py-1 rounded-lg text-[9px] font-black uppercase transition-all shadow-[1.5px_1.5px_0_0_#000] cursor-pointer disabled:opacity-50"
+                                    >
+                                      {adminDeletingId === note.id ? "..." : "DELETE"}
+                                    </button>
+                                    <button
+                                      onClick={() => setAdminConfirmId(null)}
+                                      className="bg-white text-black border-2 border-black w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black shadow-[1.5px_1.5px_0_0_#000] cursor-pointer"
+                                    >X</button>
+                                  </>
+                                ) : (
+                                  <button
+                                    onClick={() => setAdminConfirmId(note.id)}
+                                    className="bg-red-600 hover:bg-red-500 text-white border-2 border-black w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all shadow-[2px_2px_0_0_#000] cursor-pointer"
+                                    title="Admin Delete"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
+                              </div>
+                            )}
                             {/* Delete Note Option: Visible only to the original uploader */}
                             {myUploadedNotes.includes(note.id) && (
                               <div className="flex items-center gap-1 z-20">
@@ -1356,6 +1434,60 @@ export default function App() {
                 })()}
               </div>
 
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ADMIN LOGIN MODAL */}
+      <AnimatePresence>
+        {showAdminLogin && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0 }}
+              onClick={() => { setShowAdminLogin(false); setAdminCodeInput(""); setAdminLoginError(""); }}
+              className="fixed inset-0 bg-black"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-[8px_8px_0px_0px_#000] relative z-10 border-4 border-black"
+            >
+              <div className="bg-black text-yellow-400 p-5 flex justify-between items-center">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Restricted Access</p>
+                  <h2 className="text-lg font-black uppercase tracking-wider">Admin Panel</h2>
+                </div>
+                <button onClick={() => { setShowAdminLogin(false); setAdminCodeInput(""); setAdminLoginError(""); }} className="w-8 h-8 bg-yellow-400 text-black rounded-lg flex items-center justify-center border-2 border-yellow-300 cursor-pointer">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-xs font-black uppercase tracking-wider mb-1.5">Enter Secret Code</label>
+                  <input
+                    type="password"
+                    value={adminCodeInput}
+                    onChange={(e) => setAdminCodeInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleAdminLogin()}
+                    placeholder="Enter admin secret..."
+                    className="w-full bg-slate-50 border-2 border-black text-black rounded-xl py-2.5 px-3 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-yellow-300"
+                    autoFocus
+                  />
+                  {adminLoginError && (
+                    <p className="text-red-600 text-xs font-black mt-1.5">{adminLoginError}</p>
+                  )}
+                </div>
+                <button
+                  onClick={handleAdminLogin}
+                  className="w-full bg-black text-yellow-400 font-black py-3 rounded-xl border-2 border-black text-sm uppercase tracking-wider shadow-[3px_3px_0_0_#666] cursor-pointer hover:bg-zinc-800 transition-all"
+                >
+                  Unlock Admin Mode
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
