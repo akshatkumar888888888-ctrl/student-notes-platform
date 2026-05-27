@@ -1289,8 +1289,7 @@ export default function App() {
                   if (isPdf) {
                     return (
                       <iframe
-                       <iframe
-                         src={`https://docs.google.com/viewer?url=${encodeURIComponent(previewNote.file_url)}&embedded=true`}
+                        src={`https://docs.google.com/viewer?url=${encodeURIComponent(previewNote.file_url)}&embedded=true`}
                         className="w-full h-full bg-slate-100 border-0"
                         title={`PDF Viewer - ${previewNote.title}`}
                       />
