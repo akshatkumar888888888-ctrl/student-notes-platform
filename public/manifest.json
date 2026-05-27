@@ -1,0 +1,22 @@
+{
+  "name": "NoteFlow Edu",
+  "short_name": "NoteFlow",
+  "description": "Class 11 & 12 Board Exam Notes Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FEF9C3",
+  "theme_color": "#FACC15",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

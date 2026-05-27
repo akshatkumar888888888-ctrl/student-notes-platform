@@ -5,7 +5,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { 
-  BookOpen, 
   Upload, 
   Download, 
   FileText, 
@@ -13,20 +12,15 @@ import {
   CheckCircle, 
   X, 
   Database, 
-  FileCode, 
-  Github, 
-  ArrowRight, 
   Clock, 
-  User, 
-  MapPin, 
   ChevronRight,
-  Sparkles,
   Info,
   Search,
   Eye,
   ExternalLink,
   Star,
-  Trash2
+  Trash2,
+  Share2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Note, ClassOption, StreamOption, SubjectOption } from "./types";
@@ -80,6 +74,30 @@ const subjects: SubjectOption[] = [
 ];
 
 export default function App() {
+  // PWA Install prompt
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [showInstallBanner, setShowInstallBanner] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+      setShowInstallBanner(true);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === "accepted") {
+      setInstallPrompt(null);
+      setShowInstallBanner(false);
+    }
+  };
+
   // Filtering state
   const [selectedClass, setSelectedClass] = useState<string>("12");
   const [selectedStream, setSelectedStream] = useState<string>("science");
@@ -466,6 +484,16 @@ export default function App() {
 
           {/* Connected indicators & Profiles */}
           <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-center sm:justify-end">
+            {/* Install App Button */}
+            {showInstallBanner && (
+              <button
+                onClick={handleInstallApp}
+                className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-black uppercase px-3 py-2 rounded-xl border-2 border-black shadow-[2px_2px_0_0_#000] cursor-pointer transition-all"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                Install App
+              </button>
+            )}
             {/* Hidden Admin Button */}
             <button
               onClick={() => isAdminMode ? setIsAdminMode(false) : setShowAdminLogin(true)}
@@ -1023,7 +1051,7 @@ export default function App() {
               {/* Modal title */}
               <div className="bg-[#FACC15] border-b-4 border-black text-black p-5 flex justify-between items-center shrink-0">
                 <div>
-                  <h3 className="font-action text-sm uppercase tracking-widest text-black/80">Study Resource Hub</h3>
+                  <h3 className="font-action text-sm uppercase tracking-widest text-black/80">NoteFlow Edu</h3>
                   <h2 className="text-xl font-display uppercase tracking-wider mt-0.5 text-black">Share Notes File</h2>
                 </div>
                 <button
@@ -1493,15 +1521,26 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* FOOTER - COMIC STRIP PANEL */}
+      {/* FOOTER */}
       <footer className="mt-auto bg-black text-white p-4 flex flex-col md:flex-row items-center justify-between px-8 py-5 gap-4 border-t-4 border-black font-sans shrink-0">
         <div className="flex flex-wrap items-center gap-4 text-[11px] font-mono font-black text-yellow-300 uppercase">
           <span className="flex items-center gap-1.5 bg-zinc-900 border border-zinc-700 px-3 py-1.5 rounded">
-            ⚡ Built by Dev8 (Owner: Akshat)
+            ⚡ NoteFlow Edu — Class 11 &amp; 12
           </span>
         </div>
-        <div className="text-[10px] uppercase font-black tracking-widest text-[#FACC15] bg-zinc-900 border-2 border-black px-3 py-1.5 rounded shadow-[2px_2px_0_0_#000]">
-          Study Resource Hub
+        <div className="flex items-center gap-3">
+          {showInstallBanner && (
+            <button
+              onClick={handleInstallApp}
+              className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-black uppercase px-3 py-2 rounded-lg border-2 border-black shadow-[2px_2px_0_0_#000] cursor-pointer transition-all"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              Add to Home Screen
+            </button>
+          )}
+          <div className="text-[10px] uppercase font-black tracking-widest text-[#FACC15] bg-zinc-900 border-2 border-black px-3 py-1.5 rounded shadow-[2px_2px_0_0_#000]">
+            Board Exam Prep Hub
+          </div>
         </div>
       </footer>
 
