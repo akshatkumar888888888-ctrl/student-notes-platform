@@ -1,32 +1,3 @@
-// POST - increment view count
-if (req.method === "POST") {
-  try {
-    const { data: note, error: fetchError } = await supabase
-      .from("notes")
-      .select("views")
-      .eq("id", id)
-      .single();
-
-    if (fetchError || !note) {
-      return res.status(404).json({ error: "Note not found." });
-    }
-
-    const { data: updated, error: updateError } = await supabase
-      .from("notes")
-      .update({ views: (note.views || 0) + 1 })
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (updateError) {
-      return res.status(500).json({ error: updateError.message });
-    }
-
-    return res.json({ success: true, note: updated });
-  } catch (error: any) {
-    return res.status(500).json({ error: error.message });
-  }
-}
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 
@@ -36,13 +7,43 @@ const supabase = createClient(
 );
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const { id } = req.query;
+
+  // POST - increment view count
+  if (req.method === "POST") {
+    try {
+      const { data: note, error: fetchError } = await supabase
+        .from("notes")
+        .select("views")
+        .eq("id", id)
+        .single();
+
+      if (fetchError || !note) {
+        return res.status(404).json({ error: "Note not found." });
+      }
+
+      const { data: updated, error: updateError } = await supabase
+        .from("notes")
+        .update({ views: (note.views || 0) + 1 })
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (updateError) {
+        return res.status(500).json({ error: updateError.message });
+      }
+
+      return res.json({ success: true, note: updated });
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
   if (req.method !== "DELETE") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const { id } = req.query;
-
     // Get the note to find the file name
     const { data: note, error: fetchError } = await supabase
       .from("notes")
@@ -77,4 +78,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error: any) {
     return res.status(500).json({ error: error.message });
   }
-}
+  
