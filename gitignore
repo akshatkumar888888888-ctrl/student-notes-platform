@@ -1,0 +1,12 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Local file uploads (fallback storage for dev without Supabase) — never commit these
+public/uploads/*
+!public/uploads/.gitkeep
