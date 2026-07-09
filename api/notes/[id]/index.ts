@@ -6,6 +6,11 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY!
 );
 
+// Real admin secret lives only in the server environment now — it is never
+// sent to or stored in the client bundle. Set ADMIN_SECRET in your Vercel /
+// .env project settings.
+const ADMIN_SECRET = process.env.ADMIN_SECRET || "";
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { id } = req.query;
 
@@ -43,6 +48,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  // If a caller is trying to delete as admin (sends the header), the code
+  // must match the real server-side secret. Requests with no admin header
+  // fall through as a normal "delete my own upload" request (unchanged
+  // behavior from before), but a WRONG admin code is now rejected outright
+  // instead of silently doing nothing.
+  const adminHeader = req.headers["x-admin-secret"];
+  if (adminHeader && adminHeader !== ADMIN_SECRET) {
+    return res.status(403).json({ error: "Invalid admin code." });
+  }
+
   try {
     // Get the note to find the file name
     const { data: note, error: fetchError } = await supabase
@@ -78,4 +93,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error: any) {
     return res.status(500).json({ error: error.message });
   }
-  
+}
